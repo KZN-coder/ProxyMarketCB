@@ -1,6 +1,6 @@
 # ProxyMarketCB
 
-ProxyMarketCB is a python program for Telegram to use API of proxy.market to check your proxies capacity and list of current proxies
+ProxyMarketCB is a python program for Telegram bot using API of proxy.market to check your proxies capacity and list of current proxies
 
 ## Installation
 
