@@ -1,6 +1,7 @@
 import requests
+import config
 
-API_KEY = ''
+API_KEY = f'{config.proxy_API_KEY}'
 url = f'https://api.dashboard.proxy.market/dev-api/v2/packages/{API_KEY}'
 
 data = {
