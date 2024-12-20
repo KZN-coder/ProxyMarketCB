@@ -2,9 +2,9 @@ import telebot
 import api_hand
 import config
 
-
 API_TOKEN = f'{config.bot_TOKEN}'
 bot = telebot.TeleBot(API_TOKEN)
+
 
 @bot.message_handler(commands=['start'])
 def start_answer(message):
@@ -30,6 +30,13 @@ def handle_command(message):
     parts = text.split(' ', 1)
     command, params = parts
     bot.send_message(message.chat.id, api_hand.formating_proxy_lists(params))
+
+@bot.message_handler(commands=['getspeed'])
+def handle_command(message):
+    text = message.text
+    parts = text.split(' ', 1)
+    command, params = parts
+    bot.send_message(message.chat.id, api_hand.get_speed(int(params)), parse_mode='Markdown')
 
 
 bot.infinity_polling()

@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import requests
 import config
 from datetime import datetime
+import time
 
 API_KEY = f'{config.proxy_API_KEY}'
 
@@ -38,6 +39,7 @@ def formating_proxy_lists(id):
     output = ""
     for item in data:
         output+= f'{item["login"]}:{item["password"]}@{item["ip"]}:10000' + ','
+    output = output[:-1]
     return output
 
 def get_image():
@@ -58,7 +60,7 @@ def get_image():
         orientation='v',
         marker=dict(color='#dbc360'),
         text=remaining,  # Добавление текста на столбцы
-        textposition='inside',  # Позиция текста внутри столбцов
+        textposition='auto',  # Позиция текста внутри столбцов
         textfont=dict(color='black', size=20)  # Настройка шрифта
     ))
 
@@ -83,6 +85,50 @@ def get_list():
             output += "Lasts: _" + str(lasts) + "Mb_" + '\n'
             output += "Used: _" + str(used) + "Mb_" + " from _" + str(total) + "Mb_ \n"
             output += "Expires at: " + convert_timestamp_to_date(int(item["expires_at"])) + '\n\n-----\n\n'
+    return output
+
+def get_speed(wait_time):
+    # Fetch initial data
+    initial_data = get_data()
+    initial_remaining = {}
+
+    for item in initial_data["data"]:
+        used = round(((int(item["used"])) / (1024 * 1024)), 2)
+        total = round((int(item["total"])) / (1024 * 1024), 2)
+        lasts = round(total - used, 2)
+        if lasts > 0:
+            initial_remaining[item["id"]] = lasts
+
+    # Wait for the specified amount of time
+    time.sleep(wait_time)
+
+    # Fetch data again after waiting
+    final_data = get_data()
+    final_remaining = {}
+
+    for item in final_data["data"]:
+        used = round(((int(item["used"])) / (1024 * 1024)), 2)
+        total = round((int(item["total"])) / (1024 * 1024), 2)
+        lasts = round(total - used, 2)
+        if lasts > 0:
+            final_remaining[item["id"]] = lasts
+
+    # Calculate the traffic usage rate per second
+    output = "Traffic usage rate per second: \n\n-----\n\n"
+
+    sum_speed = 0
+    for item in initial_data["data"]:
+        id = item["id"]
+        name = item["name"]
+        initial = initial_remaining.get(id, 0)
+        final = final_remaining.get(id, 0)
+        if final > 0:
+            speed = round((initial - final) / wait_time, 3)
+            sum_speed+=speed
+            output += f"List: *{name}*\n\n"
+            output += f"Traffic usage rate: _{speed} Mb/s_" + "\n\n-----\n\n"
+    output+= f"Summary: _{sum_speed} Mb/s_"
+
     return output
 
 
