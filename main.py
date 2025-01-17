@@ -1,3 +1,6 @@
+import threading
+import time
+
 import telebot
 import api_hand
 import config
@@ -5,6 +8,7 @@ import config
 API_TOKEN = f'{config.bot_TOKEN}'
 bot = telebot.TeleBot(API_TOKEN)
 
+actual_speeds = ""
 
 @bot.message_handler(commands=['start'])
 def start_answer(message):
@@ -33,10 +37,13 @@ def handle_command(message):
 
 @bot.message_handler(commands=['getspeed'])
 def handle_command(message):
-    text = message.text
-    parts = text.split(' ', 1)
-    command, params = parts
-    bot.send_message(message.chat.id, api_hand.get_speed(int(params)), parse_mode='Markdown')
+    bot.send_message(message.chat.id, actual_speeds, parse_mode='Markdown')
 
+def checking_speed():
+    global actual_speeds
+    actual_speeds=api_hand.get_speed(30)
+    time.sleep(5)
+
+threading.Thread(target=checking_speed()).start()
 
 bot.infinity_polling()

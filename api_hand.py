@@ -95,13 +95,13 @@ def get_speed(wait_time):
     for item in initial_data["data"]:
         used = round(((int(item["used"])) / (1024 * 1024)), 2)
         total = round((int(item["total"])) / (1024 * 1024), 2)
-        lasts = round(total - used, 2)
+        lasts = total - used
         if lasts > 0:
             initial_remaining[item["id"]] = lasts
 
     # Wait for the specified amount of time
     time.sleep(wait_time)
-
+    print("First check")
     # Fetch data again after waiting
     final_data = get_data()
     final_remaining = {}
@@ -109,13 +109,14 @@ def get_speed(wait_time):
     for item in final_data["data"]:
         used = round(((int(item["used"])) / (1024 * 1024)), 2)
         total = round((int(item["total"])) / (1024 * 1024), 2)
-        lasts = round(total - used, 2)
+        lasts = total - used
         if lasts > 0:
             final_remaining[item["id"]] = lasts
-
+    print("Final check")
     # Calculate the traffic usage rate per second
-    output = "Traffic usage rate per second: \n\n-----\n\n"
-
+    output = "```\nTraffic usage rate per second: \n\n-----\n\n"
+    print(initial_remaining)
+    print(final_remaining)
     sum_speed = 0
     for item in initial_data["data"]:
         id = item["id"]
@@ -123,12 +124,13 @@ def get_speed(wait_time):
         initial = initial_remaining.get(id, 0)
         final = final_remaining.get(id, 0)
         if final > 0:
-            speed = round((initial - final) / wait_time, 3)
+            speed = round(8*round(((initial - final) / wait_time),3),3)
             sum_speed+=speed
-            output += f"List: *{name}*\n\n"
-            output += f"Traffic usage rate: _{speed} Mb/s_" + "\n\n-----\n\n"
-    output+= f"Summary: _{sum_speed} Mb/s_"
-
+            output += f"List: {name}\n\n"
+            output += f"Traffic usage rate: {speed} Mbit/s" + "\n\n-----\n\n"
+    sum_speed = round(sum_speed, 3)
+    output+= f"Summary: {sum_speed} Mbit/s\n```"
+    print("Data updated")
     return output
 
 
